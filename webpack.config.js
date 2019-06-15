@@ -1,0 +1,89 @@
+const path = require("path");
+const httpWebpackPlugin = require('html-webpack-plugin');
+
+const Path = {
+    main:path.join(__dirname,"src/main.js"),
+    build:path.join(__dirname,"./dist")
+}
+
+module.exports = {
+    mode:"development",
+    entry:{
+        app:Path.main
+    },
+    output:{
+        filename:"[name].js",
+        path:Path.build
+    },
+    module:{
+        rules:[
+            {
+                test:/\.(css|scss)$/,
+                use:[
+                    "style-loader",
+                    {
+                      loader:"css-loader",
+                      options:{
+                          modules:true
+                      }  
+                    },
+                    "sass-loader"
+                ]
+            },
+            {
+                test:/\.(js|jsx)$/,
+                use:{
+                    loader:"babel-loader",
+                    options:{
+                        presets:["@babel/env","@babel/react"]
+                    }
+                }
+            },
+            {
+                test:/\.(jpg|png|gif)$/,
+                use:{
+                    loader:"url-loader",
+                    options:{
+                        name:"[name][hash].[ext]",
+                        limit:2048,
+                        outputPath:"./img"
+                    }
+                }
+            },
+            {
+                test:/\.(eot|svg|ttf|woff|woff2)$/,
+                use:{
+                    loader:"file-loader",
+                    options:{
+                        name:"[name][path].[ext]",
+                        outputPath:"./iconfont"
+                    }
+                }
+            }
+        ]
+    },
+    plugins:[
+        new httpWebpackPlugin({
+            filename:"index.html",
+            template:"index.html"
+        })
+    ],
+    devServer:{
+        proxy:{
+            "./api":{
+                target:"http://i.waimai.meituan.com",
+                changeOrigin:true
+            }
+        }
+    },
+    resolve:{
+        alias:{
+            "@":path.join(__dirname,"src"),
+            "@components":path.join(__dirname,"src/components"),
+            "@common":path.join(__dirname,"src/common"),
+            "@common":path.join(__dirname,"src/store"),
+            "@views":path.join(__dirname,"src/views"),
+            "@api":path.join(__dirname,"src/api")
+        }
+    }
+}
